@@ -49,7 +49,7 @@ class Model:
 	def new_game_senior(self):
 		self.FIELD_WIDTH = 15
 		self.FIELD_HEIGHT = 15
-		self.MINES_MAX = 30
+		self.MINES_MAX = 25
 
 	def create_field(self):
 		# Creating field.
@@ -92,21 +92,89 @@ class Model:
 			cell.open()
 			if cell.state == "opened" and last_state != cell.state:
 				self.open_cells += 1
-			if cell.mined and cell.state == "opened":
-				# If this cell was mined game over.
-				cell.state = "opened"
-				self.is_game_over = True
-				self.stop_game = True
+				self.checked = []
+				if not cell.mined:
+					mines_number = self.check_neighbors(cell)
+					cell.int_state = mines_number
+			if cell.state == "opened":
+				if cell.mined:
+					# If this cell was mined game over.
+					cell.state = "opened"
+					self.is_game_over = True
+					self.stop_game = True
+				else:
+					pass
+
 			if self.is_game_over:
 				self.game_over()
+
+	def check_neighbors(self, cell):
+		neighbors_mines = 0
+		self.checked.append(cell)
+		if self.is_mined(cell, cell.x - 1, cell.y - 1): neighbors_mines += 1
+		if self.is_mined(cell, cell.x, cell.y - 1): neighbors_mines += 1
+		if self.is_mined(cell, cell.x + 1, cell.y - 1): neighbors_mines += 1
+		if self.is_mined(cell, cell.x - 1, cell.y): neighbors_mines += 1
+		if self.is_mined(cell, cell.x + 1, cell.y): neighbors_mines += 1
+		if self.is_mined(cell, cell.x - 1, cell.y + 1): neighbors_mines += 1
+		if self.is_mined(cell, cell.x, cell.y + 1): neighbors_mines += 1
+		if self.is_mined(cell, cell.x + 1, cell.y + 1): neighbors_mines += 1
+		if neighbors_mines == 0:
+			self.open_neighbors(cell)
+			pass
+		return neighbors_mines
+
+	def open_neighbors(self, cell):
+		self.open_one_neighbor(cell, cell.x - 1, cell.y - 1)
+		self.open_one_neighbor(cell, cell.x, cell.y - 1)
+		self.open_one_neighbor(cell, cell.x + 1, cell.y - 1)
+		self.open_one_neighbor(cell, cell.x - 1, cell.y)
+		self.open_one_neighbor(cell, cell.x + 1, cell.y)
+		self.open_one_neighbor(cell, cell.x - 1, cell.y + 1)
+		self.open_one_neighbor(cell, cell.x, cell.y + 1)
+		self.open_one_neighbor(cell, cell.x + 1, cell.y + 1)
+
+	def open_one_neighbor(self, old_cell, x, y):
+		try:
+			if old_cell.x == 0 and x == -1:
+				return False
+			if old_cell.x == self.FIELD_WIDTH - 1 and x == 1:
+				return False
+			if old_cell.y == 0 and y == -1:
+				return False
+			if old_cell.y == self.FIELD_HEIGHT - 1 and y == 1:
+				return False
+			cell = self.get_cell(x, y)
+			if cell.state != "opened":
+				cell.open()
+				self.open_cells += 1
+				if cell not in self.checked:
+					cell.int_state = self.check_neighbors(cell)
+		except:
+			pass
+
+	def is_mined(self, old_cell, x, y):
+		try:
+			if old_cell.x == 0 and x == -1:
+				return False
+			if old_cell.x == self.FIELD_WIDTH - 1 and x == 1:
+				return False
+			if old_cell.y == 0 and y == -1:
+				return False
+			if old_cell.y == self.FIELD_HEIGHT - 1 and y == 1:
+				return False
+			return self.get_cell(x, y).mined
+		except:
+			return False
 
 	def game_status(self):
 		if self.is_game_over:
 			self.contoller.stop_timer()
 			return "Lose"
-		elif self.must_open_cells <= self.open_cells:
+		if self.must_open_cells <= self.open_cells:
 			self.stop_game = True
 			self.contoller.stop_timer()
+			self.contoller.set_win_button()
 			return "Win"
 		return "Game"
 
@@ -121,7 +189,6 @@ class Model:
 				elif not cell.mined and cell.state == "flagged":
 					cell.int_state = 14
 			
-
 	def next_mark(self, x, y):
 		if not self.stop_game:
 			cell = self.get_cell(x, y)
