@@ -24,7 +24,7 @@ class Cell:
 			self.state != "opened" and 
 			self.state != "disable"):
 				self.state = "opened"
-				self.int_state = 5
+				self.int_state = 0
 
 	def next_mark(self):
 		"""Change cell state when right click made."""
