@@ -62,9 +62,6 @@ class View(QMainWindow):
 			self.controller.start_new_game_senior)
 		self.gamemenu.addAction(senior_level)
 
-	def ttest(self):
-		print("WROKDKDK")
-
 	def create_top_box(self):
 		self.top_box = TopBox(self.controller, self.model)
 
@@ -274,11 +271,6 @@ class Field(QWidget):
 					if event.button() == Qt.LeftButton:
 						self.model.field[y][x].int_state = 0
 						self.top_panel.start_btn.set_uhoh()
-						pass
-					if event.button() == Qt.RightButton:
-						# self.model.field[y][x].int_state = 11
-						pass
-
 					self.update()
 
 	def mouseReleaseEvent(self, event):
@@ -287,7 +279,8 @@ class Field(QWidget):
 		x = int(_x / self.SIZE)
 		y = int(_y / self.SIZE)
 		if self.test_mouse_coordinates(_x, _y):
-			if self.controller.get_status() == "Game":
+			status = self.controller.get_status()
+			if status == "Game":
 				if self.last_x == x and self.last_y == y:
 					if event.button() == Qt.LeftButton:
 						self.controller.left_click(x, y)
@@ -296,6 +289,11 @@ class Field(QWidget):
 				else:
 					self.model.field[self.last_y][self.last_x].int_state = self.last_clicked
 				self.top_panel.start_btn.set_start()
+			status = self.controller.get_status()
+			if status == "Win":
+				self.top_panel.start_btn.set_won()
+			if status == "Lose":
+				self.top_panel.start_btn.set_lost()
 
 		self.update()
 
