@@ -16,12 +16,10 @@ class View(QMainWindow):
 
 	def __init__(self, controller, model):
 		super().__init__()
-		# self.setFixedHeight(320 + 80)
 		self.controller = controller
 		self.controller.setView(self)
 		self.controller.start_new_game()
 		self.model = model
-		#self.setFixedWidth(320 + 20)
 		self.initUI()
 
 	def initUI(self):
@@ -94,11 +92,8 @@ class TopPanel(QHBoxLayout):
 		super().__init__()
 		self.controller = controller
 		self.model = model
-		#self.setSpacing(0)
-		#self.addStretch(0)
 		self.setAlignment(Qt.AlignHCenter)
 		self.setSpacing(56)
-		# self.setStretch(1, 1)
 		self.create_mines_counter()
 		self.create_start_button()
 		self.create_timer()
@@ -210,12 +205,14 @@ class Board(QHBoxLayout):
 		if minus:
 			self.numbers[0].setPixmap(self.digits[10])
 
+
 class Timer(Board):
 	pass
 
 
 class MinesBoard(Board):
 	pass
+
 
 class Field(QWidget):
 	"""Class witch display game field."""
@@ -240,7 +237,6 @@ class Field(QWidget):
 		for i in range(9):
 			_asset = QPixmap("img/open{}.gif".format(i))
 			_asset = _asset.scaled(self.SIZE, self.SIZE, Qt.IgnoreAspectRatio)
-			# self.assets['open{}'.format(i)] = _asset
 			self.assets.append(_asset)
 
 		files = [
