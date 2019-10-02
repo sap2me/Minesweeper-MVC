@@ -42,6 +42,12 @@ class Controller:
 		except:
 			pass
 
+	def set_win_button(self):
+		try:
+			self.view.top_box.top_panel.start_btn.set_won()
+		except:
+			pass
+
 	def set_mines_board(self, mines):
 		self.view.top_box.top_panel.board.set(mines)
 		self.view.update()
